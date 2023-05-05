@@ -77,3 +77,44 @@ end
     prob = compute_prob(θ, d)
     @test prob ≈ .74
 end
+
+@safetestset "compute_cond_prob" begin 
+    using PTNModel
+    using Test
+    using Distributions
+    using PTNModel: compute_cond_prob
+
+    d = .0
+    p_A = .2
+    p_B = .4
+    p_AB = .1
+
+    prob = compute_cond_prob(p_A, p_B, p_AB, d)
+    @test prob ≈ .25
+end
+
+@safetestset "round_val" begin 
+    using PTNModel
+    using Test
+    using Distributions
+    using PTNModel: round_val
+
+
+    x = round_val(.05, .05)
+    @test x ≈ 0.05
+
+    x = round_val(.025, .05)
+    @test x ≈ 0.00
+
+    x = round_val(.025 + eps(), .05)
+    @test x ≈ 0.05
+
+    x = round_val(.10, .10)
+    @test x ≈ 0.10
+
+    x = round_val(.25, .10)
+    @test x ≈ 0.20
+
+    x = round_val(.25 + eps(), .10)
+    @test x ≈ 0.30
+end

@@ -1,15 +1,25 @@
+loglikelihood(d::AbstractPTN, data::Vector{Vector{Vector{Float64}}}) = logpdf(d, data)
 
+"""
+    logpdf(dist::PTN, data, r)
 
-function logpdf(dist::PTN, data, r)
+# Arguments
+
+- `dist::PTN`:
+- `data`: a set of nested array in which the first level are replicates, and the second level correspond to 
+    judgments a, a ∩ b, a ∪ b, a | b 
+- `r=.05`: rounding factor
+"""
+function logpdf(dist::PTN, data::Vector{Vector{Vector{Float64}}}, r=.05)
     (;θs,d,n) = dist
     LL = zero(eltype(θs))
     for i ∈ 1:length(data)
-        LL += _logpdf(θs[:,i], d, n, data[i], r)
+        LL += logpdf_problem(θs[:,i], d, n, data[i], r)
     end
     return LL
 end
 
-function _logpdf(θs, d, n, data, r)
+function logpdf_problem(θs, d, n, data, r)
     LL = zero(eltype(θs))
     for i ∈ 1:length(data)
         θ_a = θs[1] + θs[2]
@@ -38,14 +48,14 @@ end
 
 function rand(dist::PTN, n_rep, r)
     (;θs,d,n) = dist 
-    return [_rand(θs[:,c], d, n, n_rep, r) for c ∈ 1:size(θs,2)]
+    return [rand_problem(θs[:,c], d, n, n_rep, r) for c ∈ 1:size(θs,2)]
 end
 
-function _rand(θs, d, n, n_rep, r)
-    return [_rand(θs, d, n, r) for _ ∈ 1:n_rep]
+function rand_problem(θs, d, n, n_rep, r)
+    return [rand_problem(θs, d, n, r) for _ ∈ 1:n_rep]
 end
 
-function _rand(θs, d, n, r)
+function rand_problem(θs, d, n, r)
     estimates = zeros(length(θs))
     θ_a = θs[1] + θs[2]
     μ_a = compute_prob(θ_a, d)

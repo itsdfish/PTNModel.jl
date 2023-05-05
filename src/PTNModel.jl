@@ -4,6 +4,7 @@ module PTNModel
     import Distributions: ContinuousUnivariateDistribution
     import Distributions: logpdf 
     import Distributions: rand
+    import Distributions: loglikelihood
 
     export AbstractPTN 
     export PTN 
