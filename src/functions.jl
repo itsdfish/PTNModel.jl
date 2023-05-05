@@ -12,7 +12,7 @@ loglikelihood(d::AbstractPTN, data::Vector{Vector{Vector{Float64}}}) = logpdf(d,
 """
 function logpdf(dist::PTN, data::Vector{Vector{Vector{Float64}}}, r=.05)
     (;θs,d,n) = dist
-    LL = zero(eltype(θs))
+    LL = 0.0
     for i ∈ 1:length(data)
         LL += logpdf_problem(θs[:,i], d, n, data[i], r)
     end
@@ -20,20 +20,24 @@ function logpdf(dist::PTN, data::Vector{Vector{Vector{Float64}}}, r=.05)
 end
 
 function logpdf_problem(θs, d, n, data, r)
-    LL = zero(eltype(θs))
+    LL = 0.0
     for i ∈ 1:length(data)
+        # a
         θ_a = θs[1] + θs[2]
         μ_a = compute_prob(θ_a, d)
         LL += compute_log_prob(data[i][1], θ_a, n, r)
-    
+        
+        # a ∩ b
         θ_ab = θs[1]
         μ_ab = compute_prob(θ_ab, d)
         LL += compute_log_prob(data[i][2], θ_ab, n, r)
     
+        # a ∪ b
         θ_aorb = sum(θs[1:3])
         μ_aorb = compute_prob(θ_aorb, d)
         LL += compute_log_prob(data[i][3], μ_aorb, n, r)
 
+        # a ∣ b
         θ_b = θs[1] + θs[3]
         μ_agb =  compute_cond_prob(θ_a, θ_b, θ_ab, d)
         LL += compute_log_prob(data[i][4], μ_agb, n, r)
