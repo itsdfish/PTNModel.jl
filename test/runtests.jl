@@ -51,3 +51,29 @@ using SafeTestsets
     log_prob = compute_log_prob(.5, μ, n, r)
     @test log_prob ≈ true_log_prob
 end
+
+@safetestset "compute_prob" begin 
+    using PTNModel
+    using Test
+    using Distributions
+    using PTNModel: compute_prob
+
+    d = .0
+    θ = .2
+
+    prob = compute_prob(θ, d)
+    @test prob ≈ θ
+
+
+    d = .1
+    θ = .2
+
+    prob = compute_prob(θ, d)
+    @test prob ≈ .26
+
+    d = .1
+    θ = .8
+
+    prob = compute_prob(θ, d)
+    @test prob ≈ .74
+end
