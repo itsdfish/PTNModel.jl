@@ -1,5 +1,14 @@
 module PTNModel
+    using Distributions
+    
+    import Distributions: ContinuousUnivariateDistribution
+    import Distributions: logpdf 
+    import Distributions: rand
 
-# Write your package code here.
+    export AbstractPTN 
+    export PTN 
 
+
+    include("structs.jl")
+    include("functions.jl")
 end
