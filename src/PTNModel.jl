@@ -9,7 +9,6 @@ module PTNModel
     export AbstractPTN 
     export PTN 
 
-
     include("structs.jl")
     include("functions.jl")
 end

@@ -4,10 +4,10 @@
 using Pkg 
 cd(@__DIR__)
 Pkg.activate("..")
+using Turing 
 using Distributions
 using Revise
 using PTNModel
-using Turing 
 #######################################################################################################
 #                                           generate some data
 #######################################################################################################
@@ -15,7 +15,7 @@ r = .05
 n_reps = 2
 d = .1
 n = 10
-θs = rand(Dirichlet(ones(4)), 2)
+θs = rand(Dirichlet(ones(4)), 1)
 model = PTN(θs, d, n)
 data = rand(model, n_reps, r)
 #######################################################################################################

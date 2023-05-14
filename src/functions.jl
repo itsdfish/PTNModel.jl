@@ -10,37 +10,39 @@ loglikelihood(d::AbstractPTN, data::Vector{Vector{Vector{Float64}}}) = logpdf(d,
     judgments a, a ∩ b, a ∪ b, a | b 
 - `r=.05`: rounding factor
 """
-function logpdf(dist::PTN, data::Vector{Vector{Vector{Float64}}}, r=.05)
-    (;θs,d,n) = dist
+function logpdf(dist::AbstractPTN, data::Vector{Vector{Vector{Float64}}}, r=.05)
     LL = 0.0
     for i ∈ 1:length(data)
-        LL += logpdf_problem(θs[:,i], d, n, data[i], r)
+        LL += logpdf_problem(dist, data, i, r)
     end
     return LL
 end
 
-function logpdf_problem(θs, d, n, data, r)
+function logpdf_problem(dist::AbstractPTN, all_data, idx, r)
+    (;θs,d,n) = dist
+    θ = θs[:,idx]
+    data = all_data[idx]
     LL = 0.0
-    for i ∈ 1:length(data)
+    for rep ∈ 1:length(data)
         # a
-        θ_a = θs[1] + θs[2]
+        θ_a = θ[1] + θ[2]
         μ_a = compute_prob(θ_a, d)
-        LL += compute_log_prob(data[i][1], θ_a, n, r)
+        LL += compute_log_prob(data[rep][1], θ_a, n, r)
         
         # a ∩ b
-        θ_ab = θs[1]
+        θ_ab = θ[1]
         μ_ab = compute_prob(θ_ab, d)
-        LL += compute_log_prob(data[i][2], θ_ab, n, r)
+        LL += compute_log_prob(data[rep][2], θ_ab, n, r)
     
         # a ∪ b
-        θ_aorb = sum(θs[1:3])
+        θ_aorb = sum(θ[1:3])
         μ_aorb = compute_prob(θ_aorb, d)
-        LL += compute_log_prob(data[i][3], μ_aorb, n, r)
+        LL += compute_log_prob(data[rep][3], μ_aorb, n, r)
 
         # a ∣ b
-        θ_b = θs[1] + θs[3]
+        θ_b = θ[1] + θ[3]
         μ_agb =  compute_cond_prob(θ_a, θ_b, θ_ab, d)
-        LL += compute_log_prob(data[i][4], μ_agb, n, r)
+        LL += compute_log_prob(data[rep][4], μ_agb, n, r)
     end
     return LL
 end
@@ -50,13 +52,14 @@ function compute_log_prob(data, μ, n, r)
         cdf(Beta(n * μ, n * (1 - μ)), data - r / 2))
 end
 
-function rand(dist::PTN, n_rep, r)
-    (;θs,d,n) = dist 
-    return [rand_problem(θs[:,c], d, n, n_rep, r) for c ∈ 1:size(θs,2)]
+function rand(dist::AbstractPTN, n_rep, r)
+    return [rand_problem(dist, c, n_rep, r) for c ∈ 1:size(dist.θs,2)]
 end
 
-function rand_problem(θs, d, n, n_rep, r)
-    return [rand_problem(θs, d, n, r) for _ ∈ 1:n_rep]
+function rand_problem(dist::AbstractPTN, idx, n_rep, r)
+    (;θs,d,n) = dist 
+    θ = θs[:,idx]
+    return [rand_problem(θ, d, n, r) for _ ∈ 1:n_rep]
 end
 
 function rand_problem(θs, d, n, r)
