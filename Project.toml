@@ -13,7 +13,7 @@ Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 [compat]
 Distributions = "0.25.0"
 Revise = "3.5.0"
-SafeTestsets = "0.0.1"
+SafeTestsets = "0.0.1, 0.1"
 Turing = "0.25.0"
 julia = "1"
 
